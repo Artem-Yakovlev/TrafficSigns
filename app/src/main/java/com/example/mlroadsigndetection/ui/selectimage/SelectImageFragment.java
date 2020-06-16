@@ -14,9 +14,12 @@ import com.bumptech.glide.Glide;
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
 import com.example.mlroadsigndetection.databinding.FragmentSelectImageBinding;
+import com.example.mlroadsigndetection.domain.localemodel.utils.ClassificationProcessor;
 import com.example.mlroadsigndetection.presenter.selectimage.SelectImagePresenter;
 import com.example.mlroadsigndetection.presenter.selectimage.SelectImageView;
 import com.example.mlroadsigndetection.presenter.selectimage.SelectImageViewState;
+
+import java.io.IOException;
 
 import moxy.MvpAppCompatFragment;
 import moxy.presenter.InjectPresenter;
@@ -82,7 +85,14 @@ public class SelectImageFragment extends MvpAppCompatFragment implements SelectI
         if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
             Image image = ImagePicker.getFirstImageOrNull(data);
             if (image != null) {
-                presenter.onPhotoChanged(image);
+                try {
+                    ClassificationProcessor classificationProcessor = new ClassificationProcessor(requireContext());
+                    classificationProcessor.process(image);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                //presenter.onPhotoChanged(image);
             }
         }
     }

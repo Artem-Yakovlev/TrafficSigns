@@ -7,7 +7,7 @@ import com.esafirm.imagepicker.model.Image;
 import com.example.mlroadsigndetection.data.AnalysisResults;
 import com.example.mlroadsigndetection.data.DataStatus;
 import com.example.mlroadsigndetection.data.Resource;
-import com.example.mlroadsigndetection.domain.RxImageClassifier;
+import com.example.mlroadsigndetection.domain.remotemodel.RxImageClassifier;
 import com.example.mlroadsigndetection.presenter.selectimage.reducers.ButtonReducer;
 import com.example.mlroadsigndetection.presenter.selectimage.reducers.ImagePathReducer;
 import com.example.mlroadsigndetection.presenter.selectimage.reducers.LoadingReducer;
