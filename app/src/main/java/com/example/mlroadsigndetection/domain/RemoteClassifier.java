@@ -3,6 +3,7 @@ package com.example.mlroadsigndetection.domain;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import com.example.mlroadsigndetection.data.AnalysisResults;
 import com.google.firebase.ml.common.FirebaseMLException;
 import com.google.firebase.ml.common.modeldownload.FirebaseModelManager;
 import com.google.firebase.ml.common.modeldownload.FirebaseRemoteModel;
@@ -14,7 +15,6 @@ import com.google.firebase.ml.vision.label.FirebaseVisionOnDeviceAutoMLImageLabe
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -30,6 +30,7 @@ public class RemoteClassifier {
 
     public RemoteClassifier() {
         remoteModel = new FirebaseRemoteModel.Builder(REMOTE_MODEL_NAME).build();
+
         FirebaseModelManager.getInstance().registerRemoteModel(remoteModel);
 
         FirebaseVisionOnDeviceAutoMLImageLabelerOptions options =
@@ -54,7 +55,7 @@ public class RemoteClassifier {
         });
     }
 
-    public Single<String> classifyBitmap(Bitmap bitmap) {
+    public Single<AnalysisResults> classifyBitmap(Bitmap bitmap) {
         return Single.create(emit -> {
             if (labeler == null) {
                 Log.e(APP_TAG, "Image classifier has not been initialized; Skipped.");
@@ -68,12 +69,13 @@ public class RemoteClassifier {
 
     }
 
-    private String getTopLabel(List<FirebaseVisionImageLabel> imageLabels) {
+    private AnalysisResults getTopLabel(List<FirebaseVisionImageLabel> imageLabels) {
         if (imageLabels.isEmpty()) {
-            return "Nothing";
+            return new AnalysisResults("", 0);
         } else {
-            return String.format(Locale.getDefault(), "Label: %s, Confidence: %4.2f \n",
-                    imageLabels.get(0).getText(), imageLabels.get(0).getConfidence()
+            return new AnalysisResults(
+                    imageLabels.get(0).getText(),
+                    imageLabels.get(0).getConfidence()
             );
         }
     }

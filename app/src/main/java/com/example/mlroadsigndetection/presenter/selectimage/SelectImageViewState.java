@@ -1,32 +1,32 @@
 package com.example.mlroadsigndetection.presenter.selectimage;
 
 
+import com.example.mlroadsigndetection.data.AnalysisResults;
+
 public class SelectImageViewState {
 
-    private Boolean isLoading = false;
-    private Boolean isButtonEnabled = true;
+    private boolean isLoading = false;
+    private boolean isButtonEnabled = true;
     private String imagePath = "";
-    private String resultText = "No result";
+    private AnalysisResults analysisResults = new AnalysisResults("", 0);
 
     public SelectImageViewState() {
 
     }
 
-    public SelectImageViewState(Boolean isLoading,
-                                Boolean isButtonEnabled,
-                                String imagePath,
-                                String resultText) {
+    public SelectImageViewState(boolean isLoading, boolean isButtonEnabled, String imagePath,
+                                AnalysisResults analysisResults) {
         this.isLoading = isLoading;
         this.isButtonEnabled = isButtonEnabled;
         this.imagePath = imagePath;
-        this.resultText = resultText;
+        this.analysisResults = analysisResults;
     }
 
-    public Boolean getLoading() {
+    public boolean isLoading() {
         return isLoading;
     }
 
-    public Boolean getButtonEnabled() {
+    public boolean isButtonEnabled() {
         return isButtonEnabled;
     }
 
@@ -34,7 +34,7 @@ public class SelectImageViewState {
         return imagePath;
     }
 
-    public String getResultText() {
-        return resultText;
+    public AnalysisResults getAnalysisResults() {
+        return analysisResults;
     }
 }

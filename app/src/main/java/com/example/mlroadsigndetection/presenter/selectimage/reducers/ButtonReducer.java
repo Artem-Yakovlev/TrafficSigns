@@ -12,7 +12,7 @@ public class ButtonReducer extends SelectImageReducer {
 
     @Override
     public SelectImageViewState apply(SelectImageViewState previousState) {
-        return new SelectImageViewState(previousState.getLoading(), isButtonEnabled,
-                previousState.getImagePath(), previousState.getResultText());
+        return new SelectImageViewState(previousState.isLoading(), isButtonEnabled,
+                previousState.getImagePath(), previousState.getAnalysisResults());
     }
 }

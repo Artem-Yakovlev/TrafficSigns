@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
 import com.example.mlroadsigndetection.R;
+import com.example.mlroadsigndetection.data.AnalysisResults;
 import com.example.mlroadsigndetection.databinding.FragmentSelectImageBinding;
 import com.example.mlroadsigndetection.domain.RemoteClassifier;
 import com.example.mlroadsigndetection.presenter.selectimage.SelectImagePresenter;
@@ -55,21 +56,25 @@ public class SelectImageFragment extends MvpAppCompatFragment implements SelectI
 
     @Override
     public void onViewStateChanged(SelectImageViewState state) {
-        binding.selectImageButton.setEnabled(state.getButtonEnabled());
-        showLoading(state.getLoading());
+        binding.selectImageButton.setEnabled(state.isButtonEnabled());
+        showLoading(state.isLoading());
         Glide.with(this.requireContext()).load(state.getImagePath()).into(binding.analyzedImage);
-        binding.resultText.setText(state.getResultText());
+        showResult(state.getAnalysisResults());
     }
 
     @Override
-    public void showDownloadSuccess() {
-        Toast.makeText(requireContext(), R.string.model_download_success, Toast.LENGTH_LONG).show();
-        binding.selectImageButton.setVisibility(View.VISIBLE);
+    public void showUnexpectedError(Throwable throwable) {
+        Toast.makeText(requireContext(), R.string.unexpected_error, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void showDownloadFailure(Throwable throwable) {
-        Toast.makeText(requireContext(), R.string.model_download_failure, Toast.LENGTH_LONG).show();
+    private void showResult(AnalysisResults analysisResults) {
+        if (analysisResults.getConfidence() == 0) {
+            binding.resultText.setText(getString(R.string.select_image_no_result));
+        } else {
+            binding.resultText.setText(getString(R.string.analysis_results_placeholder,
+                    analysisResults.getLabel(), analysisResults.getConfidence())
+            );
+        }
     }
 
     private void showLoading(Boolean isLoading) {
@@ -82,6 +87,17 @@ public class SelectImageFragment extends MvpAppCompatFragment implements SelectI
             binding.analyzedImage.setVisibility(View.VISIBLE);
             binding.resultCardview.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void showDownloadSuccess() {
+        Toast.makeText(requireContext(), R.string.model_download_success, Toast.LENGTH_LONG).show();
+        binding.selectImageButton.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void showDownloadFailure(Throwable throwable) {
+        Toast.makeText(requireContext(), R.string.model_download_failure, Toast.LENGTH_LONG).show();
     }
 
     @Override

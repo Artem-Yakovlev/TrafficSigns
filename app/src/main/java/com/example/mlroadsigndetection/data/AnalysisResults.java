@@ -3,19 +3,22 @@ package com.example.mlroadsigndetection.data;
 import com.esafirm.imagepicker.model.Image;
 
 public class AnalysisResults {
-    private final Image image;
-    private final String result;
 
-    public AnalysisResults(Image image, String result) {
-        this.image = image;
-        this.result = result;
+    private final String label;
+    private final float confidence;
+
+    public AnalysisResults(String label, float confidence) {
+        this.label = label;
+        this.confidence = confidence;
     }
 
-    public Image getImage() {
-        return image;
+    public String getLabel() {
+        return label;
     }
 
-    public String getResult() {
-        return result;
+    public float getConfidence() {
+        return confidence;
     }
 }
+
+

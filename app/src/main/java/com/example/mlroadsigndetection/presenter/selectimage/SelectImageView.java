@@ -11,6 +11,9 @@ public interface SelectImageView extends MvpView {
     void onViewStateChanged(SelectImageViewState state);
 
     @OneExecution
+    void showUnexpectedError(Throwable throwable);
+
+    @OneExecution
     void showDownloadSuccess();
 
     @OneExecution

@@ -6,12 +6,12 @@ import android.graphics.BitmapFactory;
 import com.esafirm.imagepicker.model.Image;
 import com.example.mlroadsigndetection.arch.DataStatus;
 import com.example.mlroadsigndetection.arch.Resource;
-import com.example.mlroadsigndetection.data.AnalysisResults;
+import com.example.mlroadsigndetection.data.ImageAnalysisResults;
 import com.example.mlroadsigndetection.domain.RemoteClassifier;
+import com.example.mlroadsigndetection.presenter.selectimage.reducers.AnalysisResultsReducer;
 import com.example.mlroadsigndetection.presenter.selectimage.reducers.ButtonReducer;
 import com.example.mlroadsigndetection.presenter.selectimage.reducers.ImagePathReducer;
 import com.example.mlroadsigndetection.presenter.selectimage.reducers.LoadingReducer;
-import com.example.mlroadsigndetection.presenter.selectimage.reducers.ResultReducer;
 
 import java.util.Objects;
 
@@ -30,7 +30,7 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
     private CompositeDisposable disposableBag = new CompositeDisposable();
 
     private BehaviorProcessor<Image> photoProcessor = BehaviorProcessor.create();
-    private BehaviorProcessor<Resource<AnalysisResults>> resultProcessor = BehaviorProcessor.create();
+    private BehaviorProcessor<Resource<ImageAnalysisResults>> resultProcessor = BehaviorProcessor.create();
 
     private RemoteClassifier remoteClassifier;
 
@@ -57,15 +57,15 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
                 .map(it -> it.getStatus() != DataStatus.LOADING)
                 .map(ButtonReducer::new);
 
-        Flowable<ResultReducer> resultReducerFlowable = resultProcessor
+        Flowable<AnalysisResultsReducer> analysisResultsReducerFlowable = resultProcessor
                 .filter(it -> it.getStatus() == DataStatus.DATA)
-                .map(it -> Objects.requireNonNull(it.getData()).getResult())
-                .map(ResultReducer::new);
+                .map(it -> Objects.requireNonNull(it.getData()).getAnalysisResults())
+                .map(AnalysisResultsReducer::new);
 
         //State
         Disposable disposable = Flowable
-                .merge(imagePathReducerFlowable, loadingReducerFlowable, buttonReducerFlowable,
-                        resultReducerFlowable)
+                .merge(imagePathReducerFlowable, loadingReducerFlowable,
+                        buttonReducerFlowable, analysisResultsReducerFlowable)
                 .scan(new SelectImageViewState(), (state, reducer) -> reducer.apply(state))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(getViewState()::onViewStateChanged);
@@ -79,13 +79,20 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
         disposableBag.add(remoteClassifier.downloadModel()
                 .subscribe(getViewState()::showDownloadSuccess, getViewState()::showDownloadFailure)
         );
+
+        disposableBag.add(resultProcessor
+                .filter(it -> it.getStatus() == DataStatus.ERROR)
+                .map(Resource::getError)
+                .subscribe(getViewState()::showUnexpectedError));
+
     }
 
     private void imageAnalyse(Image image) {
-        resultProcessor.onNext(new Resource<AnalysisResults>().loading());
+        resultProcessor.onNext(new Resource<ImageAnalysisResults>().loading());
         disposableBag.add(remoteClassifier.classifyBitmap(BitmapFactory.decodeFile(image.getPath()))
-                .subscribe(s -> resultProcessor.onNext(
-                        new Resource<AnalysisResults>().data(new AnalysisResults(image, s))
+                .subscribe(analysisResults -> resultProcessor.onNext(
+                        new Resource<ImageAnalysisResults>()
+                                .data(new ImageAnalysisResults(image, analysisResults))
                         )
                 ));
     }
