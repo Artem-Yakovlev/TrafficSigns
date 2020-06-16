@@ -1,4 +1,4 @@
-package com.example.mlroadsigndetection.domain.remotemodel;
+package com.example.mlroadsigndetection.domain;
 
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -19,8 +19,8 @@ import java.util.Locale;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 
-import static android.media.FaceDetector.Face.CONFIDENCE_THRESHOLD;
 import static com.example.mlroadsigndetection.data.AppConstants.APP_TAG;
+import static com.example.mlroadsigndetection.data.AppConstants.CLASSIFICATION_THRESHOLD;
 import static com.example.mlroadsigndetection.data.AppConstants.REMOTE_MODEL_NAME;
 
 public class RemoteClassifier {
@@ -34,7 +34,7 @@ public class RemoteClassifier {
 
         FirebaseVisionOnDeviceAutoMLImageLabelerOptions options =
                 new FirebaseVisionOnDeviceAutoMLImageLabelerOptions.Builder()
-                        .setConfidenceThreshold(CONFIDENCE_THRESHOLD)
+                        .setConfidenceThreshold(CLASSIFICATION_THRESHOLD)
                         .setRemoteModelName(REMOTE_MODEL_NAME)
                         .build();
 

@@ -1,4 +1,4 @@
-package com.example.mlroadsigndetection.data;
+package com.example.mlroadsigndetection.arch;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

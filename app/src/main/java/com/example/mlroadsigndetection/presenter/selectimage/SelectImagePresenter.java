@@ -4,11 +4,10 @@ package com.example.mlroadsigndetection.presenter.selectimage;
 import android.graphics.BitmapFactory;
 
 import com.esafirm.imagepicker.model.Image;
+import com.example.mlroadsigndetection.arch.DataStatus;
+import com.example.mlroadsigndetection.arch.Resource;
 import com.example.mlroadsigndetection.data.AnalysisResults;
-import com.example.mlroadsigndetection.data.DataStatus;
-import com.example.mlroadsigndetection.data.Resource;
-import com.example.mlroadsigndetection.domain.localemodel.utils.LocaleClassifier;
-import com.example.mlroadsigndetection.domain.remotemodel.RemoteClassifier;
+import com.example.mlroadsigndetection.domain.RemoteClassifier;
 import com.example.mlroadsigndetection.presenter.selectimage.reducers.ButtonReducer;
 import com.example.mlroadsigndetection.presenter.selectimage.reducers.ImagePathReducer;
 import com.example.mlroadsigndetection.presenter.selectimage.reducers.LoadingReducer;
@@ -31,15 +30,12 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
     private CompositeDisposable disposableBag = new CompositeDisposable();
 
     private BehaviorProcessor<Image> photoProcessor = BehaviorProcessor.create();
-    private BehaviorProcessor<Boolean> modeProcessor = BehaviorProcessor.create();
     private BehaviorProcessor<Resource<AnalysisResults>> resultProcessor = BehaviorProcessor.create();
 
     private RemoteClassifier remoteClassifier;
-    private LocaleClassifier localeClassifier;
 
-    public SelectImagePresenter(RemoteClassifier remoteClassifier, LocaleClassifier localeClassifier) {
+    public SelectImagePresenter(RemoteClassifier remoteClassifier) {
         this.remoteClassifier = remoteClassifier;
-        this.localeClassifier = localeClassifier;
     }
 
     @Override
@@ -78,14 +74,14 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
 
         //Actions
         disposableBag.add(photoProcessor.observeOn(Schedulers.computation())
-                .subscribe(this::imageRemoteAnalyse));
+                .subscribe(this::imageAnalyse));
 
         disposableBag.add(remoteClassifier.downloadModel()
                 .subscribe(getViewState()::showDownloadSuccess, getViewState()::showDownloadFailure)
         );
     }
 
-    private void imageRemoteAnalyse(Image image) {
+    private void imageAnalyse(Image image) {
         resultProcessor.onNext(new Resource<AnalysisResults>().loading());
         disposableBag.add(remoteClassifier.classifyBitmap(BitmapFactory.decodeFile(image.getPath()))
                 .subscribe(s -> resultProcessor.onNext(
@@ -94,22 +90,15 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
                 ));
     }
 
-    private void imageImprovedAnalyse(Image image) {
-
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
         disposableBag.dispose();
+        remoteClassifier.close();
     }
 
-    public void onPhotoChanged(Image image, boolean improvedMode) {
+    public void onPhotoChanged(Image image) {
         photoProcessor.onNext(image);
-    }
-
-    public void onModeChanged(boolean isImproved) {
-        modeProcessor.onNext(isImproved);
     }
 
 }

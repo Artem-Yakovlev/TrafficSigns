@@ -9,15 +9,6 @@
         android:id="@+id/selectImageFragment"
         android:name="com.example.mlroadsigndetection.ui.selectimage.SelectImageFragment"
         android:label="fragment_select_image"
-        tools:layout="@layout/fragment_select_image" >
-        <action
-            android:id="@+id/action_selectImageFragment_to_liveCameraFragment"
-            app:destination="@id/liveCameraFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_select_image" />
 
-    <fragment
-        android:id="@+id/liveCameraFragment"
-        android:name="com.example.mlroadsigndetection.ui.livecamera.LiveCameraFragment"
-        android:label="fragment_live_camera"
-        tools:layout="@layout/fragment_live_camera" />
 </navigation>

@@ -14,24 +14,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <Switch
-            android:id="@+id/model_mode_switcher"
-            style="@style/TextMedium16White"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/improved_model" />
-
-    </androidx.appcompat.widget.Toolbar>
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="Image analyzer"
+        app:titleTextAppearance="@style/TextMedium16White" />
 
     <ImageView
         android:id="@+id/analyzed_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:padding="@dimen/padding_24"
-        android:scaleType="centerInside"
-        android:src="@drawable/general_1"
         app:layout_constraintBottom_toTopOf="@+id/result_cardview"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

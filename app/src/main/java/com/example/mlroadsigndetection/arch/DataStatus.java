@@ -1,4 +1,4 @@
-package com.example.mlroadsigndetection.data;
+package com.example.mlroadsigndetection.arch;
 
 public enum DataStatus {
     CREATED,

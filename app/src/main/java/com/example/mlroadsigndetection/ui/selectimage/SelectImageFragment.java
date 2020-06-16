@@ -15,13 +15,10 @@ import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
 import com.example.mlroadsigndetection.R;
 import com.example.mlroadsigndetection.databinding.FragmentSelectImageBinding;
-import com.example.mlroadsigndetection.domain.localemodel.utils.LocaleClassifier;
-import com.example.mlroadsigndetection.domain.remotemodel.RemoteClassifier;
+import com.example.mlroadsigndetection.domain.RemoteClassifier;
 import com.example.mlroadsigndetection.presenter.selectimage.SelectImagePresenter;
 import com.example.mlroadsigndetection.presenter.selectimage.SelectImageView;
 import com.example.mlroadsigndetection.presenter.selectimage.SelectImageViewState;
-
-import java.io.IOException;
 
 import moxy.MvpAppCompatFragment;
 import moxy.presenter.InjectPresenter;
@@ -37,14 +34,7 @@ public class SelectImageFragment extends MvpAppCompatFragment implements SelectI
 
     @ProvidePresenter
     SelectImagePresenter provideSelectImagePresenter() {
-        RemoteClassifier remoteClassifier = new RemoteClassifier();
-        try {
-            LocaleClassifier localeClassifier = new LocaleClassifier(requireContext());
-            return new SelectImagePresenter(remoteClassifier, localeClassifier);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new SelectImagePresenter(new RemoteClassifier(), null);
+        return new SelectImagePresenter(new RemoteClassifier());
     }
 
     @Override
@@ -60,9 +50,6 @@ public class SelectImageFragment extends MvpAppCompatFragment implements SelectI
         super.onViewCreated(view, savedInstanceState);
         binding.selectImageButton.setOnClickListener(v ->
                 ImagePicker.create(this).single().start()
-        );
-        binding.modelModeSwitcher.setOnClickListener(v ->
-                presenter.onModeChanged(binding.modelModeSwitcher.isEnabled())
         );
     }
 
@@ -103,14 +90,7 @@ public class SelectImageFragment extends MvpAppCompatFragment implements SelectI
         if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
             Image image = ImagePicker.getFirstImageOrNull(data);
             if (image != null) {
-//                try {
-//                    LocaleClassifier localeClassifier = new LocaleClassifier(requireContext());
-//                    localeClassifier.classifyImage(image);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-
-                presenter.onPhotoChanged(image, false);
+                presenter.onPhotoChanged(image);
             }
         }
     }
