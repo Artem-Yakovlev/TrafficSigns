@@ -9,8 +9,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.esafirm.imagepicker.model.Image;
-import com.example.mlroadsigndetection.domain.localemodel.configs.GtsrbQuantConfig;
-import com.example.mlroadsigndetection.domain.localemodel.configs.ModelConfig;
+import com.example.mlroadsigndetection.data.ModelConstants;
 
 import org.tensorflow.lite.Interpreter;
 
@@ -23,56 +22,47 @@ import java.util.PriorityQueue;
 
 public class ClassificationProcessor {
 
-    private static final int MAX_CLASSIFICATION_RESULTS = 3;
-    private static final float CLASSIFICATION_THRESHOLD = 0.2f;
-
     private final Interpreter interpreter;
     private final List<String> labels;
-    private final ModelConfig modelConfig;
 
     public ClassificationProcessor(Context context) throws IOException {
-        ModelConfig modelConfig = new GtsrbQuantConfig();
-        ByteBuffer model = AssetsUtils.loadFile(context, modelConfig.getModelFilename());
+        ByteBuffer model = AssetsUtils.loadFile(context, ModelConstants.LOCALE_MODEL_FILENAME);
         this.interpreter = new Interpreter(model);
-        this.labels = AssetsUtils.loadLines(context, modelConfig.getLabelsFilename());
-        this.modelConfig = modelConfig;
+        this.labels = AssetsUtils.loadLines(context, ModelConstants.LABELS_FILENAME);
     }
 
-    public void process(@NonNull Image image) {
-        Bitmap bitmap = BitmapFactory.decodeFile(image.getPath());
-        Bitmap toClassify = ThumbnailUtils.extractThumbnail(
-                bitmap, modelConfig.getInputWidth(), modelConfig.getInputHeight()
-        );
-        bitmap.recycle();
+    public void classifyImage(@NonNull Image image) {
 
-        ByteBuffer byteBufferToClassify = bitmapToModelsMatchingByteBuffer(toClassify);
-        runInferenceOnQuantizedModel(byteBufferToClassify);
-    }
+        ByteBuffer byteBufferToClassify = bitmapToModelsMatchingByteBuffer(
+                ThumbnailUtils.extractThumbnail(
+                        BitmapFactory.decodeFile(image.getPath()),
+                        ModelConstants.INPUT_WIDTH, ModelConstants.INPUT_HEIGHT
+                ));
 
-    private void runInferenceOnQuantizedModel(ByteBuffer byteBufferToClassify) {
         byte[][] result = new byte[1][labels.size()];
         interpreter.run(byteBufferToClassify, result);
         float[][] resultFloats = new float[1][labels.size()];
+
         byte[] bytes = result[0];
         for (int i = 0; i < bytes.length; i++) {
-            float resultF = (bytes[i] & 0xff) / 255.f;
-            resultFloats[0][i] = resultF;
-
+            resultFloats[0][i] = (bytes[i] & 0xff) / 255.f;
         }
+
         Log.d("ASMR", "REsult:");
         Log.d("ASMR", getSortedResult(resultFloats).toString());
     }
 
     private ByteBuffer bitmapToModelsMatchingByteBuffer(Bitmap bitmap) {
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(modelConfig.getInputSize());
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(ModelConstants.INPUT_SIZE);
         byteBuffer.order(ByteOrder.nativeOrder());
-        int[] intValues = new int[modelConfig.getInputWidth() * modelConfig.getInputHeight()];
+
+        int[] intValues = new int[ModelConstants.INPUT_WIDTH * ModelConstants.INPUT_HEIGHT];
         bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+
         int pixel = 0;
-        for (int i = 0; i < modelConfig.getInputWidth(); ++i) {
-            for (int j = 0; j < modelConfig.getInputHeight(); ++j) {
-                int pixelVal = intValues[pixel++];
-                for (byte channelVal : pixelToChannelValuesQuant(pixelVal)) {
+        for (int i = 0; i < ModelConstants.INPUT_WIDTH; i++) {
+            for (int j = 0; j < ModelConstants.INPUT_HEIGHT; j++) {
+                for (byte channelVal : pixelToChannelValuesQuant(intValues[pixel++])) {
                     byteBuffer.put(channelVal);
                 }
             }
@@ -81,22 +71,22 @@ public class ClassificationProcessor {
     }
 
     private byte[] pixelToChannelValuesQuant(int pixel) {
-        byte[] rgbVals = new byte[3];
-        rgbVals[0] = (byte) ((pixel >> 16) & 0xFF);
-        rgbVals[1] = (byte) ((pixel >> 8) & 0xFF);
-        rgbVals[2] = (byte) ((pixel) & 0xFF);
-        return rgbVals;
+        return new byte[]{
+                (byte) ((pixel >> 16) & 0xFF),
+                (byte) ((pixel >> 8) & 0xFF),
+                (byte) ((pixel) & 0xFF)
+        };
     }
 
     private List<ClassificationResult> getSortedResult(float[][] resultsArray) {
         PriorityQueue<ClassificationResult> sortedResults = new PriorityQueue<>(
-                MAX_CLASSIFICATION_RESULTS,
+                ModelConstants.MAX_CLASSIFICATION_RESULTS,
                 (lhs, rhs) -> Float.compare(rhs.confidence, lhs.confidence)
         );
 
-        for (int i = 0; i < labels.size(); ++i) {
+        for (int i = 0; i < labels.size(); i++) {
             float confidence = resultsArray[0][i];
-            if (confidence > CLASSIFICATION_THRESHOLD) {
+            if (confidence > ModelConstants.CLASSIFICATION_THRESHOLD) {
                 sortedResults.add(new ClassificationResult(labels.get(i), confidence));
             }
         }

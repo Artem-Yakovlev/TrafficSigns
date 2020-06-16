@@ -87,7 +87,7 @@ public class SelectImageFragment extends MvpAppCompatFragment implements SelectI
             if (image != null) {
                 try {
                     ClassificationProcessor classificationProcessor = new ClassificationProcessor(requireContext());
-                    classificationProcessor.process(image);
+                    classificationProcessor.classifyImage(image);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

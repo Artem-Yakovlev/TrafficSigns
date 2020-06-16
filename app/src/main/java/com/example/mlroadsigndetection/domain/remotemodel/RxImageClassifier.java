@@ -54,7 +54,7 @@ public class RxImageClassifier {
         });
     }
 
-    public Single<String> classifyFrame(Bitmap bitmap) {
+    public Single<String> classifyBitmap(Bitmap bitmap) {
         return Single.create(emit -> {
             if (labeler == null) {
                 Log.e(APP_TAG, "Image classifier has not been initialized; Skipped.");

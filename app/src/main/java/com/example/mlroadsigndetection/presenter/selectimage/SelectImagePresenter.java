@@ -80,7 +80,7 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
 
     private void imageAnalyse(Image image) {
         resultProcessor.onNext(new Resource<AnalysisResults>().loading());
-        disposableBag.add(imageClassifier.classifyFrame(BitmapFactory.decodeFile(image.getPath()))
+        disposableBag.add(imageClassifier.classifyBitmap(BitmapFactory.decodeFile(image.getPath()))
                 .subscribe(s -> {
                     resultProcessor.onNext(new Resource<AnalysisResults>()
                             .data(new AnalysisResults(image, s))
