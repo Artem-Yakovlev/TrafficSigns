@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
+import com.example.mlroadsigndetection.R;
 import com.example.mlroadsigndetection.databinding.FragmentSelectImageBinding;
 import com.example.mlroadsigndetection.domain.localemodel.utils.ClassificationProcessor;
 import com.example.mlroadsigndetection.presenter.selectimage.SelectImagePresenter;
@@ -58,13 +59,13 @@ public class SelectImageFragment extends MvpAppCompatFragment implements SelectI
 
     @Override
     public void showDownloadSuccess() {
-        Toast.makeText(requireContext(), "Download model Success", Toast.LENGTH_LONG).show();
+        Toast.makeText(requireContext(), R.string.model_download_success, Toast.LENGTH_LONG).show();
         binding.selectImageButton.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void showDownloadFailure(Throwable throwable) {
-        Toast.makeText(requireContext(), "Download model failure", Toast.LENGTH_LONG).show();
+        Toast.makeText(requireContext(), R.string.model_download_failure, Toast.LENGTH_LONG).show();
     }
 
     private void showLoading(Boolean isLoading) {
@@ -85,14 +86,14 @@ public class SelectImageFragment extends MvpAppCompatFragment implements SelectI
         if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
             Image image = ImagePicker.getFirstImageOrNull(data);
             if (image != null) {
-                try {
-                    ClassificationProcessor classificationProcessor = new ClassificationProcessor(requireContext());
-                    classificationProcessor.classifyImage(image);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    ClassificationProcessor classificationProcessor = new ClassificationProcessor(requireContext());
+//                    classificationProcessor.classifyImage(image);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
 
-                //presenter.onPhotoChanged(image);
+                presenter.onPhotoChanged(image);
             }
         }
     }

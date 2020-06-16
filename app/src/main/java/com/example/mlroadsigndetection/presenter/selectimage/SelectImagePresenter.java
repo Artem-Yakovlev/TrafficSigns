@@ -30,6 +30,7 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
     private CompositeDisposable disposableBag = new CompositeDisposable();
 
     private BehaviorProcessor<Image> photoProcessor = BehaviorProcessor.create();
+    private BehaviorProcessor<Boolean> modeProcessor = BehaviorProcessor.create();
     private BehaviorProcessor<Resource<AnalysisResults>> resultProcessor = BehaviorProcessor.create();
 
     private RxImageClassifier imageClassifier = new RxImageClassifier();
@@ -38,7 +39,7 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
     protected void onFirstViewAttach() {
         super.onFirstViewAttach();
 
-//        Reducers
+        //Reducers
         Flowable<ImagePathReducer> imagePathReducerFlowable = resultProcessor
                 .filter(it -> it.getStatus() == DataStatus.DATA)
                 .map(it -> Objects.requireNonNull(it.getData()).getImage())
@@ -69,7 +70,6 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
         disposableBag.add(disposable);
 
         //Actions
-
         disposableBag.add(photoProcessor.observeOn(Schedulers.computation())
                 .subscribe(this::imageAnalyse));
 
@@ -81,11 +81,10 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
     private void imageAnalyse(Image image) {
         resultProcessor.onNext(new Resource<AnalysisResults>().loading());
         disposableBag.add(imageClassifier.classifyBitmap(BitmapFactory.decodeFile(image.getPath()))
-                .subscribe(s -> {
-                    resultProcessor.onNext(new Resource<AnalysisResults>()
-                            .data(new AnalysisResults(image, s))
-                    );
-                }));
+                .subscribe(s -> resultProcessor.onNext(
+                        new Resource<AnalysisResults>().data(new AnalysisResults(image, s))
+                        )
+                ));
 
     }
 
@@ -97,6 +96,10 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
 
     public void onPhotoChanged(Image image) {
         photoProcessor.onNext(image);
+    }
+
+    public void onModeChanged() {
+
     }
 
 }
