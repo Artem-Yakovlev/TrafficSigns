@@ -1,4 +1,4 @@
-package com.example.mlroadsigndetection;
+package com.example.mlroadsigndetection.domain;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -21,16 +21,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-import static com.example.mlroadsigndetection.AppConstants.APP_TAG;
-import static com.example.mlroadsigndetection.AppConstants.CONFIDENCE_THRESHOLD;
-import static com.example.mlroadsigndetection.AppConstants.REMOTE_MODEL_NAME;
+import static com.example.mlroadsigndetection.data.AppConstants.APP_TAG;
+import static com.example.mlroadsigndetection.data.AppConstants.CONFIDENCE_THRESHOLD;
+import static com.example.mlroadsigndetection.data.AppConstants.REMOTE_MODEL_NAME;
 
 public class ImageClassifier {
 
     private FirebaseVisionImageLabeler labeler;
     private boolean remoteModelDownloadSucceeded = false;
 
-    ImageClassifier(Context context) throws FirebaseMLException {
+    public ImageClassifier() throws FirebaseMLException {
         FirebaseRemoteModel remoteModel = new FirebaseRemoteModel.Builder(REMOTE_MODEL_NAME).build();
         FirebaseModelManager.getInstance().registerRemoteModel(remoteModel);
 
@@ -42,17 +42,17 @@ public class ImageClassifier {
 
         labeler = FirebaseVision.getInstance().getOnDeviceAutoMLImageLabeler(options);
 
-        Toast.makeText(context, "Begin downloading", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(context, "Begin downloading", Toast.LENGTH_SHORT).show();
 
         // Track the remote model download progress.
         FirebaseModelManager.getInstance()
                 .downloadRemoteModelIfNeeded(remoteModel)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(context, "Success", Toast.LENGTH_SHORT).show();
                     remoteModelDownloadSucceeded = true;
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                     Log.e(APP_TAG, "", e);
                 });
     }

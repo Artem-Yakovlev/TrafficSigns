@@ -1,4 +1,4 @@
-package com.example.mlroadsigndetection;
+package com.example.mlroadsigndetection.data;
 
 final public class AppConstants {
 
