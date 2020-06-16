@@ -19,16 +19,16 @@ import java.util.Locale;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 
+import static android.media.FaceDetector.Face.CONFIDENCE_THRESHOLD;
 import static com.example.mlroadsigndetection.data.AppConstants.APP_TAG;
-import static com.example.mlroadsigndetection.data.AppConstants.CONFIDENCE_THRESHOLD;
 import static com.example.mlroadsigndetection.data.AppConstants.REMOTE_MODEL_NAME;
 
-public class RxImageClassifier {
+public class RemoteClassifier {
 
     private FirebaseVisionImageLabeler labeler;
     private FirebaseRemoteModel remoteModel;
 
-    public RxImageClassifier() {
+    public RemoteClassifier() {
         remoteModel = new FirebaseRemoteModel.Builder(REMOTE_MODEL_NAME).build();
         FirebaseModelManager.getInstance().registerRemoteModel(remoteModel);
 

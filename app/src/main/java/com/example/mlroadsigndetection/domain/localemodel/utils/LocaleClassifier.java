@@ -20,12 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
-public class ClassificationProcessor {
+public class LocaleClassifier {
 
     private final Interpreter interpreter;
     private final List<String> labels;
 
-    public ClassificationProcessor(Context context) throws IOException {
+    public LocaleClassifier(Context context) throws IOException {
         ByteBuffer model = AssetsUtils.loadFile(context, ModelConstants.LOCALE_MODEL_FILENAME);
         this.interpreter = new Interpreter(model);
         this.labels = AssetsUtils.loadLines(context, ModelConstants.LABELS_FILENAME);

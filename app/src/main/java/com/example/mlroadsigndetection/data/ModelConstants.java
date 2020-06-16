@@ -14,6 +14,6 @@ public final class ModelConstants {
     public static final int CHANNELS_COUNT = 3;
     public static final int INPUT_SIZE = INPUT_WIDTH * INPUT_HEIGHT * CHANNELS_COUNT * QUANT_BYTES_COUNT;
     public static final int MAX_CLASSIFICATION_RESULTS = 3;
-    public static final float CLASSIFICATION_THRESHOLD = 0.3f;
+    public static final float CLASSIFICATION_THRESHOLD = 0.2f;
 
 }

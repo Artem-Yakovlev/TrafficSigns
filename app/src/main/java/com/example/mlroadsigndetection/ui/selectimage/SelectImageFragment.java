@@ -15,7 +15,8 @@ import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
 import com.example.mlroadsigndetection.R;
 import com.example.mlroadsigndetection.databinding.FragmentSelectImageBinding;
-import com.example.mlroadsigndetection.domain.localemodel.utils.ClassificationProcessor;
+import com.example.mlroadsigndetection.domain.localemodel.utils.LocaleClassifier;
+import com.example.mlroadsigndetection.domain.remotemodel.RemoteClassifier;
 import com.example.mlroadsigndetection.presenter.selectimage.SelectImagePresenter;
 import com.example.mlroadsigndetection.presenter.selectimage.SelectImageView;
 import com.example.mlroadsigndetection.presenter.selectimage.SelectImageViewState;
@@ -24,6 +25,7 @@ import java.io.IOException;
 
 import moxy.MvpAppCompatFragment;
 import moxy.presenter.InjectPresenter;
+import moxy.presenter.ProvidePresenter;
 
 
 public class SelectImageFragment extends MvpAppCompatFragment implements SelectImageView {
@@ -32,6 +34,18 @@ public class SelectImageFragment extends MvpAppCompatFragment implements SelectI
 
     @InjectPresenter
     SelectImagePresenter presenter;
+
+    @ProvidePresenter
+    SelectImagePresenter provideSelectImagePresenter() {
+        RemoteClassifier remoteClassifier = new RemoteClassifier();
+        try {
+            LocaleClassifier localeClassifier = new LocaleClassifier(requireContext());
+            return new SelectImagePresenter(remoteClassifier, localeClassifier);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new SelectImagePresenter(new RemoteClassifier(), null);
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -44,9 +58,12 @@ public class SelectImageFragment extends MvpAppCompatFragment implements SelectI
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        binding.selectImageButton.setOnClickListener(v -> {
-            ImagePicker.create(this).single().start();
-        });
+        binding.selectImageButton.setOnClickListener(v ->
+                ImagePicker.create(this).single().start()
+        );
+        binding.modelModeSwitcher.setOnClickListener(v ->
+                presenter.onModeChanged(binding.modelModeSwitcher.isEnabled())
+        );
     }
 
     @Override
@@ -87,13 +104,13 @@ public class SelectImageFragment extends MvpAppCompatFragment implements SelectI
             Image image = ImagePicker.getFirstImageOrNull(data);
             if (image != null) {
 //                try {
-//                    ClassificationProcessor classificationProcessor = new ClassificationProcessor(requireContext());
-//                    classificationProcessor.classifyImage(image);
+//                    LocaleClassifier localeClassifier = new LocaleClassifier(requireContext());
+//                    localeClassifier.classifyImage(image);
 //                } catch (IOException e) {
 //                    e.printStackTrace();
 //                }
 
-                presenter.onPhotoChanged(image);
+                presenter.onPhotoChanged(image, false);
             }
         }
     }
