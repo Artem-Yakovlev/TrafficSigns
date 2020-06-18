@@ -68,7 +68,7 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
                         buttonReducerFlowable, analysisResultsReducerFlowable)
                 .scan(new SelectImageViewState(), (state, reducer) -> reducer.apply(state))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(getViewState()::onViewStateChanged);
+                .subscribe(getViewState()::onViewStateChanged, getViewState()::showUnexpectedError);
 
         disposableBag.add(disposable);
 
@@ -83,7 +83,8 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
         disposableBag.add(resultProcessor
                 .filter(it -> it.getStatus() == DataStatus.ERROR)
                 .map(Resource::getError)
-                .subscribe(getViewState()::showUnexpectedError));
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(getViewState()::showUnexpectedError, getViewState()::showUnexpectedError));
 
     }
 
@@ -93,7 +94,8 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
                 .subscribe(analysisResults -> resultProcessor.onNext(
                         new Resource<ImageAnalysisResults>()
                                 .data(new ImageAnalysisResults(image, analysisResults))
-                        )
+                        ),
+                        e -> resultProcessor.onNext(new Resource<ImageAnalysisResults>().error(e))
                 ));
     }
 

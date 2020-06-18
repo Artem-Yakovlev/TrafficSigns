@@ -15,6 +15,7 @@ import com.google.firebase.ml.vision.label.FirebaseVisionOnDeviceAutoMLImageLabe
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -60,11 +61,11 @@ public class RemoteClassifier {
             if (labeler == null) {
                 Log.e(APP_TAG, "Image classifier has not been initialized; Skipped.");
                 emit.onError(new IllegalStateException("Uninitialized Classifier."));
+            } else {
+                labeler.processImage(FirebaseVisionImage.fromBitmap(bitmap))
+                        .addOnSuccessListener(imageLabels -> emit.onSuccess(getTopLabel(imageLabels)))
+                        .addOnFailureListener(emit::onError);
             }
-
-            labeler.processImage(FirebaseVisionImage.fromBitmap(bitmap))
-                    .addOnSuccessListener(imageLabels -> emit.onSuccess(getTopLabel(imageLabels)))
-                    .addOnFailureListener(emit::onError);
         });
 
     }
