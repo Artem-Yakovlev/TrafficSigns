@@ -1,18 +1,18 @@
 package com.example.mlroadsigndetection.data;
 
-import com.esafirm.imagepicker.model.Image;
+import android.graphics.Bitmap;
 
 public class ImageAnalysisResults {
-    private final Image image;
+    private final Bitmap bitmap;
     private final AnalysisResults analysisResults;
 
-    public ImageAnalysisResults(Image image, AnalysisResults analysisResults) {
-        this.image = image;
+    public ImageAnalysisResults(Bitmap bitmap, AnalysisResults analysisResults) {
+        this.bitmap = bitmap;
         this.analysisResults = analysisResults;
     }
 
-    public Image getImage() {
-        return image;
+    public Bitmap getBitmap() {
+        return bitmap;
     }
 
     public AnalysisResults getAnalysisResults() {

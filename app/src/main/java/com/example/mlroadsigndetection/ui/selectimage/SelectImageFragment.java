@@ -1,6 +1,8 @@
 package com.example.mlroadsigndetection.ui.selectimage;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,7 +60,7 @@ public class SelectImageFragment extends MvpAppCompatFragment implements SelectI
     public void onViewStateChanged(SelectImageViewState state) {
         binding.selectImageButton.setEnabled(state.isButtonEnabled());
         showLoading(state.isLoading());
-        Glide.with(this.requireContext()).load(state.getImagePath()).into(binding.analyzedImage);
+        Glide.with(this.requireContext()).load(state.getBitmap()).into(binding.analyzedImage);
         showResult(state.getAnalysisResults());
     }
 
@@ -106,7 +108,10 @@ public class SelectImageFragment extends MvpAppCompatFragment implements SelectI
         if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
             Image image = ImagePicker.getFirstImageOrNull(data);
             if (image != null) {
-                presenter.onPhotoChanged(image);
+                Bitmap bitmap = BitmapFactory.decodeFile(image.getPath());
+                if (bitmap != null) {
+                    presenter.onPhotoChanged(bitmap);
+                }
             }
         }
     }

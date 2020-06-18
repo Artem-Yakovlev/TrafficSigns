@@ -1,6 +1,7 @@
 package com.example.mlroadsigndetection.presenter.selectimage;
 
 
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.esafirm.imagepicker.model.Image;
@@ -29,7 +30,7 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
 
     private CompositeDisposable disposableBag = new CompositeDisposable();
 
-    private BehaviorProcessor<Image> photoProcessor = BehaviorProcessor.create();
+    private BehaviorProcessor<Bitmap> photoProcessor = BehaviorProcessor.create();
     private BehaviorProcessor<Resource<ImageAnalysisResults>> resultProcessor = BehaviorProcessor.create();
 
     private RemoteClassifier remoteClassifier;
@@ -45,8 +46,7 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
         //Reducers
         Flowable<ImagePathReducer> imagePathReducerFlowable = resultProcessor
                 .filter(it -> it.getStatus() == DataStatus.DATA)
-                .map(it -> Objects.requireNonNull(it.getData()).getImage())
-                .map(Image::getPath)
+                .map(it -> Objects.requireNonNull(it.getData()).getBitmap())
                 .map(ImagePathReducer::new);
 
         Flowable<LoadingReducer> loadingReducerFlowable = resultProcessor
@@ -88,12 +88,12 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
 
     }
 
-    private void imageAnalyse(Image image) {
+    private void imageAnalyse(Bitmap bitmap) {
         resultProcessor.onNext(new Resource<ImageAnalysisResults>().loading());
-        disposableBag.add(remoteClassifier.classifyBitmap(BitmapFactory.decodeFile(image.getPath()))
+        disposableBag.add(remoteClassifier.classifyBitmap(bitmap)
                 .subscribe(analysisResults -> resultProcessor.onNext(
                         new Resource<ImageAnalysisResults>()
-                                .data(new ImageAnalysisResults(image, analysisResults))
+                                .data(new ImageAnalysisResults(bitmap, analysisResults))
                         ),
                         e -> resultProcessor.onNext(new Resource<ImageAnalysisResults>().error(e))
                 ));
@@ -106,8 +106,8 @@ public class SelectImagePresenter extends MvpPresenter<SelectImageView> {
         remoteClassifier.close();
     }
 
-    public void onPhotoChanged(Image image) {
-        photoProcessor.onNext(image);
+    public void onPhotoChanged(Bitmap bitmap) {
+        photoProcessor.onNext(bitmap);
     }
 
 }

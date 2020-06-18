@@ -14,7 +14,7 @@ public class AnalysisResultsReducer extends SelectImageReducer {
     @Override
     public SelectImageViewState apply(SelectImageViewState previousState) {
         return new SelectImageViewState(previousState.isLoading(), previousState.isButtonEnabled(),
-                previousState.getImagePath(), analysisResults
+                previousState.getBitmap(), analysisResults
         );
     }
 }
